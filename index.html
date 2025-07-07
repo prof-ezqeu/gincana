@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sorteio</title>
+    <title>Sorteio - Gincana IFSC</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -31,11 +31,11 @@
     <div class="container mx-auto p-4 flex flex-col items-center justify-center min-h-screen text-center">
 
         <!-- Título -->
-        <h1 class="text-3xl font-bold mb-4 text-cyan-400">Sorteio Especial</h1>
+        <h1 class="text-3xl font-bold mb-4 text-[#00843D]">Sorteio Especial - Gincana IFSC</h1>
         <p class="text-gray-400 mb-8">Clique para sortear um número e tente adivinhar o código secreto!</p>
 
         <!-- Botão de Sorteio -->
-        <button id="drawButton" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105 disabled:bg-gray-600 disabled:cursor-not-allowed disabled:transform-none">
+        <button id="drawButton" class="bg-[#00843D] hover:bg-green-800 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105 disabled:bg-gray-600 disabled:cursor-not-allowed disabled:transform-none">
             Sortear Número
         </button>
 
@@ -47,10 +47,10 @@
 
         <!-- Área de Adivinhação -->
         <div id="guessArea" class="hidden mt-4 p-6 bg-gray-800 rounded-xl shadow-md w-full max-w-sm">
-            <label for="guessInput" class="block text-lg font-medium text-cyan-400 mb-2">Qual o código secreto?</label>
+            <label for="guessInput" class="block text-lg font-medium text-[#00843D] mb-2">Qual o código secreto?</label>
             <div class="flex space-x-2">
-                <input type="text" id="guessInput" class="w-full bg-gray-700 text-white p-3 rounded-lg border-2 border-gray-600 focus:border-cyan-500 focus:outline-none text-center text-2xl" placeholder="Digite aqui">
-                <button id="submitGuessButton" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                <input type="text" id="guessInput" class="w-full bg-gray-700 text-white p-3 rounded-lg border-2 border-gray-600 focus:border-[#00843D] focus:outline-none text-center text-2xl" placeholder="Digite aqui">
+                <button id="submitGuessButton" class="bg-[#D42E12] hover:bg-red-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
                     Enviar
                 </button>
             </div>
@@ -59,7 +59,7 @@
 
         <!-- Mensagem de Comemoração -->
         <div id="celebration" class="hidden mt-8 text-center">
-            <h2 class="text-5xl font-bold text-green-400">PARABÉNS!</h2>
+            <h2 class="text-5xl font-bold text-[#00843D]">PARABÉNS!</h2>
             <p class="text-2xl text-gray-300 mt-2">Você acertou o código secreto!</p>
         </div>
 
@@ -83,14 +83,15 @@
 
         // --- Funções ---
 
-        // Função para criar um confete
+        // Função para criar um confete com as cores do IFSC
         function createConfetti() {
             const confetti = document.createElement('div');
             confetti.classList.add('confetti');
             confetti.style.left = Math.random() * 100 + 'vw';
             confetti.style.animationDuration = Math.random() * 3 + 2 + 's'; // Duração entre 2 e 5 segundos
             
-            const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4caf50', '#8bc34a', '#cddc39', '#ffeb3b', '#ffc107', '#ff9800'];
+            // Cores do IFSC: Verde, Vermelho, Branco
+            const colors = ['#00843D', '#D42E12', '#FFFFFF'];
             confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
             
             confettiContainer.appendChild(confetti);
@@ -103,7 +104,7 @@
         // Função para verificar se a resposta do usuário está correta
         function verificarSeEstaCorreto(respostaUsuario) {
             const resultadoEsperado = (4 * Math.sqrt(sortedValue + 27) - 58) / 20;
-            // CORREÇÃO: Usa Math.abs para garantir que a margem seja sempre positiva.
+            // Usa Math.abs para garantir que a margem seja sempre positiva.
             const margem = Math.abs(resultadoEsperado) * 0.02; 
             console.log("Número Sorteado: " + sortedValue + ", Resultado Esperado: " + resultadoEsperado + ", Resposta do Usuário: " + respostaUsuario + ", Margem: " + margem);
             return Math.abs(respostaUsuario - resultadoEsperado) <= margem;
