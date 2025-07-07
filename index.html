@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Animação para a comemoração */
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            animation: confetti-fall 5s linear infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+
+    <div id="confetti-container" class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none"></div>
+
+    <div class="container mx-auto p-4 flex flex-col items-center justify-center min-h-screen text-center">
+
+        <!-- Título -->
+        <h1 class="text-3xl font-bold mb-4 text-cyan-400">Sorteio Especial</h1>
+        <p class="text-gray-400 mb-8">Clique para sortear um número e tente adivinhar o código secreto!</p>
+
+        <!-- Botão de Sorteio -->
+        <button id="drawButton" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105 disabled:bg-gray-600 disabled:cursor-not-allowed disabled:transform-none">
+            Sortear Número
+        </button>
+
+        <!-- Área do Resultado -->
+        <div id="resultArea" class="my-8 hidden">
+            <p class="text-gray-400">Número Sorteado:</p>
+            <p id="resultNumber" class="text-8xl md:text-9xl font-black text-white tracking-tighter"></p>
+        </div>
+
+        <!-- Área de Adivinhação -->
+        <div id="guessArea" class="hidden mt-4 p-6 bg-gray-800 rounded-xl shadow-md w-full max-w-sm">
+            <label for="guessInput" class="block text-lg font-medium text-cyan-400 mb-2">Qual o código secreto?</label>
+            <div class="flex space-x-2">
+                <input type="text" id="guessInput" class="w-full bg-gray-700 text-white p-3 rounded-lg border-2 border-gray-600 focus:border-cyan-500 focus:outline-none text-center text-2xl" placeholder="Digite aqui">
+                <button id="submitGuessButton" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                    Enviar
+                </button>
+            </div>
+            <p id="feedbackMessage" class="mt-4 h-6 text-yellow-400"></p>
+        </div>
+
+        <!-- Mensagem de Comemoração -->
+        <div id="celebration" class="hidden mt-8 text-center">
+            <h2 class="text-5xl font-bold text-green-400">PARABÉNS!</h2>
+            <p class="text-2xl text-gray-300 mt-2">Você acertou o código secreto!</p>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Elementos do DOM ---
+        const drawButton = document.getElementById('drawButton');
+        const resultArea = document.getElementById('resultArea');
+        const resultNumber = document.getElementById('resultNumber');
+        const guessArea = document.getElementById('guessArea');
+        const guessInput = document.getElementById('guessInput');
+        const submitGuessButton = document.getElementById('submitGuessButton');
+        const feedbackMessage = document.getElementById('feedbackMessage');
+        const celebration = document.getElementById('celebration');
+        const confettiContainer = document.getElementById('confetti-container');
+
+        // --- Variáveis do Jogo ---
+        const values = [9, 22, 37, 54, 94, 117];
+        let sortedValue = null;
+
+        // --- Funções ---
+
+        // Função para criar um confete
+        function createConfetti() {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.animationDuration = Math.random() * 3 + 2 + 's'; // Duração entre 2 e 5 segundos
+            
+            const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4caf50', '#8bc34a', '#cddc39', '#ffeb3b', '#ffc107', '#ff9800'];
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            confettiContainer.appendChild(confetti);
+
+            setTimeout(() => {
+                confetti.remove();
+            }, 5000);
+        }
+
+        // Função para verificar se a resposta do usuário está correta
+        function verificarSeEstaCorreto(respostaUsuario) {
+            const resultadoEsperado = (4 * Math.sqrt(sortedValue + 27) - 58) / 20;
+            // CORREÇÃO: Usa Math.abs para garantir que a margem seja sempre positiva.
+            const margem = Math.abs(resultadoEsperado) * 0.02; 
+            console.log("Número Sorteado: " + sortedValue + ", Resultado Esperado: " + resultadoEsperado + ", Resposta do Usuário: " + respostaUsuario + ", Margem: " + margem);
+            return Math.abs(respostaUsuario - resultadoEsperado) <= margem;
+        }
+
+        // Função para o sorteio
+        function drawNumber() {
+            // Escolhe um número aleatório do array
+            const randomIndex = Math.floor(Math.random() * values.length);
+            sortedValue = values[randomIndex];
+
+            // Exibe o número sorteado
+            resultNumber.textContent = sortedValue;
+            resultArea.classList.remove('hidden');
+            
+            // Mostra a área de adivinhação
+            guessArea.classList.remove('hidden');
+
+            // Desabilita o botão de sorteio
+            drawButton.disabled = true;
+            drawButton.textContent = 'Sorteado!';
+        }
+
+        // Função para checar a tentativa do usuário
+        function checkGuess() {
+            // Pega o valor, substitui vírgula por ponto para garantir a conversão para float
+            const rawValue = guessInput.value;
+            const normalizedValue = rawValue.replace(',', '.');
+            const userValue = parseFloat(normalizedValue);
+
+            if (isNaN(userValue)) {
+                feedbackMessage.textContent = 'Por favor, digite um número válido.';
+                return;
+            }
+
+            if (verificarSeEstaCorreto(userValue)) {
+                feedbackMessage.textContent = '';
+                guessArea.classList.add('hidden');
+                celebration.classList.remove('hidden');
+                // Inicia a comemoração com confetes
+                for (let i = 0; i < 100; i++) {
+                    createConfetti();
+                }
+            } else {
+                feedbackMessage.textContent = 'Ops, não foi dessa vez. Tente de novo!';
+                guessInput.focus(); // Foca no input para facilitar nova tentativa
+            }
+        }
+
+        // --- Event Listeners ---
+        drawButton.addEventListener('click', drawNumber);
+        submitGuessButton.addEventListener('click', checkGuess);
+        
+        // Adiciona um listener para a tecla Enter no campo de input
+        guessInput.addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Previne o comportamento padrão do Enter (como submeter um formulário)
+                submitGuessButton.click(); // Simula um clique no botão de enviar
+            }
+        });
+
+    </script>
+</body>
+</html>
